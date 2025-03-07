@@ -5,28 +5,48 @@
     <title>Chat App</title>
 </head>
 <body>
-    <div id="messages"></div>
-    <input type="text" id="message-input">
-    <button onclick="sendMessage()">Send</button>
+    <div id="room-form">
+        <input type="text" id="room-input" placeholder="Enter room ID">
+        <button onclick="joinRoom()">Join Room</button>
+    </div>
+    <div id="chat" style="display: none;">
+        <div id="messages"></div>
+        <input type="text" id="message-input">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
     <script>
-        const ws = new WebSocket('ws://localhost:8080/ws');
-        const messages = document.getElementById('messages');
-        const input = document.getElementById('message-input');
+        let ws = null;
 
-        ws.onmessage = (event) => {
-            const msg = document.createElement('p');
-            msg.textContent = event.data;
-            messages.appendChild(msg);
-        };
+        function joinRoom() {
+            const roomID = document.getElementById('room-input').value.trim();
+            if (roomID === '') return;
 
-        ws.onopen = () => console.log('Connected');
-        ws.onclose = () => console.log('Disconnected');
+            ws = new WebSocket(`ws://localhost:8080/ws?room=${roomID}`);
+            const messages = document.getElementById('messages');
+            const input = document.getElementById('message-input');
+
+            ws.onmessage = (event) => {
+                const msg = document.createElement('p');
+                msg.textContent = event.data;
+                messages.appendChild(msg);
+            };
+
+            ws.onopen = () => {
+                document.getElementById('room-form').style.display = 'none';
+                document.getElementById('chat').style.display = 'block';
+            };
+
+            ws.onclose = () => {
+                document.getElementById('room-form').style.display = 'block';
+                document.getElementById('chat').style.display = 'none';
+            };
+        }
 
         function sendMessage() {
-            if (input.value.trim() !== '') {
-                ws.send(input.value);
-                input.value = '';
+            if (ws && document.getElementById('message-input').value.trim() !== '') {
+                ws.send(document.getElementById('message-input').value);
+                document.getElementById('message-input').value = '';
             }
         }
     </script>
