@@ -41,7 +41,7 @@ chatapp/
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/<your-username>/chatapp.git
+   git clone https://github.com/inzemam21/chat-app.git
    cd chatapp
 
 2. **Install Dependencies: Ensure Go is installed, then**:
