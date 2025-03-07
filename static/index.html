@@ -3,20 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat App</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div id="room-form">
-        <input type="text" id="room-input" placeholder="Enter room ID">
-        <button onclick="joinRoom()">Join Room</button>
-    </div>
-    <div id="chat" style="display: none;">
-        <div id="messages"></div>
-        <input type="text" id="message-input">
-        <button onclick="sendMessage()">Send</button>
+    <div class="app-container">
+        <div id="room-form" class="room-form">
+            <input type="text" id="room-input" placeholder="Enter room ID">
+            <button onclick="joinRoom()">Join Room</button>
+        </div>
+        <div id="chat" class="chat-container" style="display: none;">
+            <div class="chat-header">
+                <span id="room-info"></span>
+            </div>
+            <div class="messages-container">
+                <div id="messages"></div>
+                <div id="typing-indicator" style="display: none;"></div>
+            </div>
+            <form id="message-form" class="message-form">
+                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
 
     <script>
         let ws = null;
+        let typingTimeout = null;
 
         function joinRoom() {
             const roomID = document.getElementById('room-input').value.trim();
@@ -25,29 +37,53 @@
             ws = new WebSocket(`ws://localhost:8080/ws?room=${roomID}`);
             const messages = document.getElementById('messages');
             const input = document.getElementById('message-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const roomInfo = document.getElementById('room-info');
 
             ws.onmessage = (event) => {
-                const msg = document.createElement('p');
-                msg.textContent = event.data;
-                messages.appendChild(msg);
+                const data = event.data;
+                if (data.startsWith('typing:')) {
+                    typingIndicator.style.display = data === 'typing:1' ? 'block' : 'none';
+                } else {
+                    const msg = document.createElement('div');
+                    msg.className = 'message';
+                    msg.textContent = data;
+                    messages.appendChild(msg);
+                    messages.scrollTop = messages.scrollHeight;
+                }
             };
 
             ws.onopen = () => {
                 document.getElementById('room-form').style.display = 'none';
-                document.getElementById('chat').style.display = 'block';
+                document.getElementById('chat').style.display = 'flex';
+                roomInfo.textContent = `#${roomID}`;
             };
 
             ws.onclose = () => {
-                document.getElementById('room-form').style.display = 'block';
+                document.getElementById('room-form').style.display = 'flex';
                 document.getElementById('chat').style.display = 'none';
+                typingIndicator.style.display = 'none';
             };
-        }
 
-        function sendMessage() {
-            if (ws && document.getElementById('message-input').value.trim() !== '') {
-                ws.send(document.getElementById('message-input').value);
-                document.getElementById('message-input').value = '';
-            }
+            input.oninput = () => {
+                if (ws) {
+                    ws.send('typing:1');
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        if (ws) ws.send('typing:0');
+                    }, 1000);
+                }
+            };
+
+            document.getElementById('message-form').onsubmit = (e) => {
+                e.preventDefault();
+                if (ws && input.value.trim() !== '') {
+                    ws.send(input.value);
+                    input.value = '';
+                    ws.send('typing:0');
+                    clearTimeout(typingTimeout);
+                }
+            };
         }
     </script>
 </body>
