@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat App</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/room-form.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/animations.css">
 </head>
 <body>
     <div class="app-container">
         <div id="room-form" class="room-form">
+            <input type="text" id="username-input" placeholder="Enter your username">
             <input type="text" id="room-input" placeholder="Enter room ID">
             <button onclick="joinRoom()">Join Room</button>
         </div>
         <div id="chat" class="chat-container" style="display: none;">
             <div class="chat-header">
                 <span id="room-info"></span>
+                <div id="status-info" class="status-info">
+                    <span id="other-status" class="status-icon"></span>
+                    <span id="other-name"></span>
+                </div>
             </div>
             <div class="messages-container">
                 <div id="messages"></div>
                 <div id="typing-indicator" style="display: none;">
+                    <span id="typing-user"></span>
                     <span class="dot"></span>
                     <span class="dot"></span>
                     <span class="dot"></span>
@@ -29,77 +38,7 @@
             </form>
         </div>
     </div>
-
-    <script>
-        let ws = null;
-        let typingTimeout = null;
-
-        function joinRoom() {
-            const roomID = document.getElementById('room-input').value.trim();
-            if (roomID === '') return;
-
-            ws = new WebSocket(`ws://localhost:8080/ws?room=${roomID}`);
-            const messages = document.getElementById('messages');
-            const input = document.getElementById('message-input');
-            const typingIndicator = document.getElementById('typing-indicator');
-            const roomInfo = document.getElementById('room-info');
-
-            ws.onmessage = (event) => {
-                const data = event.data;
-                if (data.startsWith('typing:')) {
-                    console.log('Received:', data);
-                    const shouldDisplay = data === 'typing:1' ? 'block' : 'none';
-                    typingIndicator.style.display = shouldDisplay;
-                    console.log('Set typing-indicator display to:', shouldDisplay);
-                } else {
-                    console.log('Message:', data);
-                    const msg = document.createElement('div');
-                    msg.className = 'message';
-                    msg.textContent = data;
-                    messages.appendChild(msg);
-                    messages.scrollTop = messages.scrollHeight;
-                }
-            };
-
-            ws.onopen = () => {
-                console.log('Connected to room:', roomID);
-                document.getElementById('room-form').style.display = 'none';
-                document.getElementById('chat').style.display = 'flex';
-                roomInfo.textContent = `#${roomID}`;
-            };
-
-            ws.onclose = () => {
-                console.log('Disconnected');
-                document.getElementById('room-form').style.display = 'flex';
-                document.getElementById('chat').style.display = 'none';
-                typingIndicator.style.display = 'none';
-            };
-
-            input.oninput = () => {
-                if (ws) {
-                    console.log('Sending typing:1');
-                    ws.send('typing:1');
-                    clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => {
-                        if (ws) {
-                            console.log('Sending typing:0');
-                            ws.send('typing:0');
-                        }
-                    }, 1000);
-                }
-            };
-
-            document.getElementById('message-form').onsubmit = (e) => {
-                e.preventDefault();
-                if (ws && input.value.trim() !== '') {
-                    ws.send(input.value);
-                    input.value = '';
-                    console.log('Sending typing:0 after message');
-                    ws.send('typing:0');
-                    clearTimeout(typingTimeout);
-                }
-            };
-        }
-    </script>
+    <script src="/js/app.js"></script>
+    <script src="/js/chat.js"></script>
 </body>
 </html>

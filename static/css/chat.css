@@ -1,0 +1,164 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #d2d2d2;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1d1c1d;
+}
+
+.status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-icon.online {
+    background-color: #28a745;
+}
+
+.status-icon.offline {
+    background-color: #d2d2d2;
+}
+
+.messages-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.message {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.sent {
+    align-items: flex-end;
+}
+
+.message.received {
+    align-items: flex-start;
+}
+
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background-color: #f4f4f4;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.message.sent .message-wrapper {
+    background-color: #e9f2fa;
+}
+
+.message.received .message-wrapper {
+    background-color: #f4f4f4;
+}
+
+/* Style for system messages */
+.message.received .message-wrapper:has(.content:where([textContent^="System:"])) {
+    background-color: transparent;
+    box-shadow: none;
+    padding: 5px 10px;
+    text-align: center;
+    max-width: 100%;
+    color: #606060;
+    font-style: italic;
+}
+
+.message .content {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #1d1c1d;
+    word-wrap: break-word;
+}
+
+.message .timestamp {
+    font-size: 11px;
+    color: #606060;
+    margin-top: 6px;
+    opacity: 0.8;
+}
+
+.message.sent .timestamp {
+    text-align: right;
+}
+
+.message.received .timestamp {
+    text-align: left;
+}
+
+.message.received .timestamp:where(.message-wrapper:has(.content:where([textContent^="System:"])) + *) {
+    display: none; /* Hide timestamp for system messages */
+}
+
+.message-form {
+    display: flex;
+    padding: 10px 20px;
+    border-top: 1px solid #d2d2d2;
+    background-color: #fff;
+}
+
+.message-form input {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #d2d2d2;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    background-color: #fff;
+    color: #1d1c1d;
+}
+
+.message-form input::placeholder {
+    color: #606060;
+}
+
+.message-form input:focus {
+    border-color: #1264a3;
+}
+
+.message-form button {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #1264a3;
+    color: #fff;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.message-wrapper:hover {
+    background-color: #e0e0e0;
+}
+
+.message.sent .message-wrapper:hover {
+    background-color: #d4e6f5;
+}
+
+.message-form button:hover {
+    background-color: #0e4a7b;
+}
