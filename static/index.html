@@ -5,6 +5,30 @@
     <title>Chat App</title>
 </head>
 <body>
-    <h1>Welcome to the Chat App</h1>
+    <div id="messages"></div>
+    <input type="text" id="message-input">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8080/ws');
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('message-input');
+
+        ws.onmessage = (event) => {
+            const msg = document.createElement('p');
+            msg.textContent = event.data;
+            messages.appendChild(msg);
+        };
+
+        ws.onopen = () => console.log('Connected');
+        ws.onclose = () => console.log('Disconnected');
+
+        function sendMessage() {
+            if (input.value.trim() !== '') {
+                ws.send(input.value);
+                input.value = '';
+            }
+        }
+    </script>
 </body>
 </html>
