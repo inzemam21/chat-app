@@ -19,7 +19,7 @@ A modern, real-time chat application inspired by Slack, built with Go (backend) 
 - **Deployment**: Local server on `localhost:8080`.
 
 ## Project Structure
-
+```
 chatapp/
 │
 ├── main.go              # Sets up HTTP server and WebSocket routes
@@ -35,7 +35,7 @@ chatapp/
 │       ├── chat.css     # Styles for the chat interface
 │       └── animations.css # Typing indicator animations
 ├── README.md            # Project documentation
-
+```
 
 ## Installation
 
